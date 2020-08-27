@@ -1,11 +1,11 @@
 %%
-%% This is file `m2piart.cls',
+%% This is file `m2pi.cls',
 %% The original source files were:
 %%
 %% amsclass.dtx  (with options: `amsart,classes')
 \NeedsTeXFormat{LaTeX2e}% LaTeX 2.09 can't be used (nor non-LaTeX)
 [1995/06/01]% LaTeX date must be June 1995 or later
-\ProvidesClass{m2piart}[2020/08/21 v1]
+\ProvidesClass{m2pi}[2020/08/21 v1]
 
 \usepackage{ifpdf}
 

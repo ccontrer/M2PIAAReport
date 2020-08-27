@@ -1,19 +1,16 @@
-% \documentclass{m2pi}
-\documentclass{article}
+\documentclass{m2pi}
+% \documentclass{article}
 % \include{m2pi_standard_commands}
 
 
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{geometry}
-\usepackage[numbers]{natbib}
+% \usepackage[numbers]{natbib}
 
 \geometry{margin=1in}
 
-\bibliographystyle{abbrvnat}
+% \bibliographystyle{abbrvnat}
 
-\author{Carlos, Junjie, Keran, Li, Tingzhou, and Yi}
-\title{PIMS M\textasciicircum I Worshop: Aerium Analytics}
-\date{August, 2020}
 
 
 \begin{document}
@@ -21,6 +18,9 @@
 
 
 
+\author{Carlos, Junjie, Keran, Li, Tingzhou, and Yi}
+\title{PIMS M\textasciicircum I Worshop: Aerium Analytics}
+\date{August, 2020}
 
 \begin{abstract}
 Here we study identifying yellow and white line in aerial road and parking lot images.
@@ -32,7 +32,7 @@ Here we study identifying yellow and white line in aerial road and parking lot i
 \section{Introduction}
 Identifying road lines and marks is important task in traffic monitoring and real-time parking lot occupancy. Machine learning techniques can help automate the process. For instance, determining the real-time occupancy percentage of a parking lot. One task is to identify the yellow lines to delimit parking spaces. The complication is to distinguish from other yellow lines (such as handicap marks and no parking yellow stripes), yellow patterns in the ground, and vehicles. Another task is to identify white lines. In this project we want to identify yellow and white lines in parking lot and road images using image processing techniques and unsupervised machine learning.
 
-[Some references and previous work needed. \citep{Lin2014}]
+[Some references and previous work needed. \cite{Lin2014}]
 
 [Mention automatically ]
 
@@ -64,7 +64,8 @@ Methods to explain or mention
 \section{Conclusion}
 
 
-
+\nocite{*}
+\bibliographystyle{amsplain}
 \bibliography{references}
 
 
