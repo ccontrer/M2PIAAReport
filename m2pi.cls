@@ -1,11 +1,11 @@
 %%
-%% This is file `m2pi.cls',
+%% This is file `m2piart.cls',
 %% The original source files were:
 %%
 %% amsclass.dtx  (with options: `amsart,classes')
 \NeedsTeXFormat{LaTeX2e}% LaTeX 2.09 can't be used (nor non-LaTeX)
 [1995/06/01]% LaTeX date must be June 1995 or later
-\ProvidesClass{m2pi}[2020/08/21 v1]
+\ProvidesClass{m2piart}[2020/08/21 v1]
 
 \usepackage{ifpdf}
 
@@ -109,7 +109,7 @@
     \if@bw
        \scalebox{0.5}{\includegraphics{bigbwlogo2}}
     \else
-       \scalebox{0.25}{\includegraphics{biglogo2}}
+       \scalebox{0.2}{\includegraphics{biglogo2}}
   }%
 }
 \def\eonly@logo{%
