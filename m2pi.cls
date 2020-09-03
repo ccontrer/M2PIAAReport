@@ -1,11 +1,11 @@
 %%
-%% This is file `m2piart.cls',
+%% This is file `m2pi.cls',
 %% The original source files were:
 %%
 %% amsclass.dtx  (with options: `amsart,classes')
 \NeedsTeXFormat{LaTeX2e}% LaTeX 2.09 can't be used (nor non-LaTeX)
 [1995/06/01]% LaTeX date must be June 1995 or later
-\ProvidesClass{m2piart}[2020/08/21 v1]
+\ProvidesClass{m2pi}[2020/08/21 v1]
 
 \usepackage{ifpdf}
 
@@ -487,7 +487,7 @@
 \let\addresses\@empty      \let\thankses\@empty
 \newcommand{\address}[2][]{\g@addto@macro\addresses{\address{#1}{#2}}}
 \newcommand{\curraddr}[2][]{\g@addto@macro\addresses{\curraddr{#1}{#2}}}
-\newcommand{\email}[2][]{\g@addto@macro\addresses{\email{#1}{#2}}}
+%\newcommand{\email}[2][]{\g@addto@macro\addresses{\email{#1}{#2}}}
 \newcommand{\urladdr}[2][]{\g@addto@macro\addresses{\urladdr{#1}{#2}}}
 \long\def\thanks@warning#1{%
   \ClassError{\@classname}{%
@@ -645,7 +645,7 @@
 } % end \@maketitle
 \def\@adminfootnotes{%
   \let\@makefnmark\relax  \let\@thefnmark\relax
-  \ifx\@empty\@date\else \@footnotetext{\@setdate}\fi
+   \ifx\@empty\@date\else \@footnotetext{\@setdate}\fi
   \ifx\@empty\@subjclass\else \@footnotetext{\@setsubjclass}\fi
   \ifx\@empty\@keywords\else \@footnotetext{\@setkeywords}\fi
   \ifx\@empty\thankses\else \@footnotetext{%
@@ -760,7 +760,7 @@
 \ifx\@classname\@tempb
   \newcommand{\datename}{\textit{Date}:}
 \else
-  \newcommand{\datename}{Received by the editors}
+  \newcommand{\datename}{}%Received by the editors}
 \fi
 \def\@settitle{\begin{center}%
   \baselineskip14\p@\relax
@@ -797,7 +797,7 @@
   \@xcontribs
   \MakeUppercase{\xcontribs}%
 }
-\def\@setdate{\datename\ \@date\@addpunct.}
+\def\@setdate{\datename\ \@date}%\@addpunct.}
 \def\@setsubjclass{%
   {\itshape\subjclassname.}\enspace\@subjclass\@addpunct.}
 \def\@setkeywords{%
