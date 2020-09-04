@@ -17,30 +17,21 @@
 \title{Automated Recognition of Road Lines in Aerial Images}
 
 \author{Carlos Contreras} 
-%\email{carlos.contreras@ualberta.ca}
 \author{Keran Li}
-%\email{keran.li1@ucalgary.ca}
 \author{Yi Sui}
-%\email{ysui@sfu.ca}
 \author{Li Wang}
-%\email{lwang@math.ubc.ca}
 \author{Tingzhou Yu}
-%\email{tingzhouyu@uvic.ca}
 \author{Junjie Zhu}
-%\email{jzhu@math.ubc.ca}
 
 \date{Carlos Contreras: carlos.contreras@ualberta.ca 
 \par \hspace{} Keran Li: keran.li1@ucalgary.ca
 \par \hspace{} Yi Sui: ysui@sfu.ca
 \par \hspace{} Li Wang: lwang@math.ubc.ca
 \par \hspace{} Tingzhou Yu: tingzhouyu@uvic.ca
-\par \hspace{} Junjie Zhu: jzhu@math.ubc.ca
-}
-
-
+\par \hspace{} Junjie Zhu: jzhu@math.ubc.ca}
 
 \begin{abstract}
-{\color{red}In this project, we identify yellow and white lines in aerial road and parking lot images by applying the image process techniques and unsupervised machine learning methods.   The goal of this project is to automate labeling yellow and white lines to create training sets.   We apply clustering to classify colors, Canny edge detection to create bounding boxes around the cluster corresponding to lines, and clustering to classify long a thin boxes as lines.}
+Training of object detection models requires a large number of images with specifying the regions of interest. Currently, the selection of regions of interest is done manually, which could be inefficient and inaccurate. In this project, we developed an automated recognition and labeling tool for road lines in aerial road and parking lot images, based on image processing techniques and unsupervised machine learning methods. The tool we created here contains three major steps, including color filtering, edge detection, and objects recognition and labeling. We demonstrate how this tool works by presenting an example where the yellow parking lot lines are successfully identified and labeled. We conclude this project with a summary of future work could be done to improve this tool. 
 \end{abstract}
 
 \maketitle
@@ -59,14 +50,13 @@ Note that we only mention yellow line recognition here for
 demonstration purpose; however, the method could be applied 
 to any color line recognition. 
 We implement this method on Python with the help of various 
-packages, such as \href{https://opencv.org/}{OpenCV} and 
-\href{https://scikit-learn.org/stable/}{Scikit-Learn}.
+libraries, such as \href{v}OpenCV \cite{opencv_library}, 
+\href{v} Scikit-Learn \cite{scikit-learn}, and \href{v}{Pillow} \cite{clark2015pillow}.
 We will present some of the results in \S \ref{results}.
 
 
 
-\subsection{{\color{red} Color Quantization and Color Filtering ?}}
-
+\subsection{Color Filtering}
 
 Since our goal is to recognize the yellow lines, it would be beneficial to identify all yellow pixels first. We select a standard RGB (Red, Green, Blue) value for the yellow color and look for all pixels in the images with RGB values close to that of the standard yellow. Here are some methods we have attempted.
 
@@ -76,23 +66,21 @@ One way to extract the yellow pixels is to convert the RGB values to HSV (hue, s
 
 \subsubsection{Color Quantization with K-Means}
 
-K-Means is an unsupervised machine learning algorithm that groups data into clusters. Given a hyper-parameter $K$, $K$-Means can assign rows of data to $K$ clusters, such that each row is assigned to its closest cluster center in Euclidean space, and each cluster center is the mean of data assigned to it.
+$K$-Means is an unsupervised machine learning algorithm that groups data into clusters. Given a hyper-parameter $K$, $K$-Means can assign rows of data to $K$ clusters, such that each row is assigned to its closest cluster center in Euclidean space, and each cluster center is the mean of data assigned to it.
 
-We applied the $K$-means algorithm from Scikit-Learn 
-{\color{red} on the whole image data we have. ?} 
-We inputted the RGB values of the pixels in all images. To extract the yellow pixels, we only keep the pixels that are in the same cluster as the standard yellow. Compared to the HSV filter, we did not need to specify the range for yellow, which allows the potential that pixels with noise can still be classified as yellow.
+We applied the $K$-means algorithm from Scikit-Learn to RGB values of the pixels from all images. To extract the yellow pixels, we only keep the pixels that are in the same cluster as the standard yellow. Compared to the HSV filter, we did not need to specify the range of yellow, which allows the potential that pixels with noise can still be classified as yellow.
 
 
 \subsubsection{Color Quantization with DBSCAN and HDBSCAN}
 
-DBSCAN (Density-based spatial clustering of applications with noise) and HDBSCAN (Hierarchical density-based spatial clustering of applications with noise) are two other clustering algorithms. Given a hyper-parameter $\epsilon$ and $min\_samples$, DBSCAN declares two pixels to be in the same cluster if their distance is less than $\epsilon$, and we ignore clusters with less than $min\_samples$ data points. Compared to K-Means, not every data point needs to be in a cluster, and DBSCAN ensures that pixels with similar values are in the same cluster. HDBSCAN is an improvement of DBSCAN.
+DBSCAN (Density-based spatial clustering of applications with noise) and HDBSCAN (Hierarchical density-based spatial clustering of applications with noise) are two other clustering algorithms. Given a hyper-parameter $\epsilon$ and $min\_samples$, DBSCAN declares two pixels to be in the same cluster if their distance is less than $\epsilon$, and we ignore clusters with less than $min\_samples$ data points. Compared to $K$-Means, not every data point needs to be in a cluster, and DBSCAN ensures that pixels with similar values are in the same cluster. HDBSCAN is an improvement of DBSCAN.
 
-However, the run time of these two algorithms is much higher than K-Means. We adapted by resizing the images to $224 \times 224$. Also, other pixels are in the same cluster as the standard yellow. Especially with resizing, the RGB values of the pixels space out evenly in the color space, and there is not a large gap between the cluster of yellow pixels and other pixels. Thus, these two algorithms do not perform well. Setting $\epsilon=5.3$, they excluded almost all pixels. If $\epsilon=5.4$, they included most of the pixels, so they did not help with extracting the yellow pixels only.
+However, the run time of these two algorithms is much higher than $K$-Means. We adapted by resizing the images to $224 \times 224$. Also, other pixels are in the same cluster as the standard yellow. Especially with resizing, the RGB values of the pixels space out evenly in the color space, and there is not a large gap between the cluster of yellow pixels and other pixels. Thus, these two algorithms do not perform well. Setting $\epsilon=5.3$, they excluded almost all pixels. If $\epsilon=5.4$, they included most of the pixels, so they did not help with extracting the yellow pixels only.
 
 \subsubsection{Color Quantization with Gaussian Mixture Models}
- We also applied Gaussian Mixture models to study the color quantization on the images. The Gaussian Mixture model is a probabilistic unsupervised model, and models are learned by using the maximum likelihood estimates (MLE).  Given a pixel K-means would classify it as one color only, where the mixture of Gaussian could say with certain probability it is yellow, and with certain probability chance it is green, allowing us the view the color clustering with uncertainty. 
+We also applied Gaussian Mixture models to study the color quantization on the images. The Gaussian Mixture model is a probabilistic unsupervised model, and models are learned by using the maximum likelihood estimates (MLE).  Given a pixel $K$-means would classify it as one color only, where the mixture of Gaussian could say with certain probability it is yellow, and with certain probability chance it is green, allowing us the view the color clustering with uncertainty.
 
-{\color{red}We implemented the Gaussian Mixture Models from Scikit-learn with co-variance type as ``tied". We tried  testing various numbers of components. We tried both co-variance type ``tied" and  a scaled version of ``diag", and the  ``tied" does better jobs in our cases. } To identify the yellow pixels from the parking lines, we changed the color modes to RGB for images and follow the same procedures as K-means.  We compared the results from K-means and Gaussian Mixture models, and we see that Gaussian Mixture models can capture more relevant yellow parking lines pixels from the shadow see Figure 5, which is consistent with our expectations. However, it was not able to solve the problem with shadow completely.  
+We implemented the Gaussian Mixture Models from Scikit-learn with co-variance types ``tied" and ``diag" and different number of components. Type ``tied" showed better results for the image set we have. To identify the yellow pixels from the parking lines, we changed the color modes to RGB for images and follow the same procedures as $K$-means.  We compared the results from $K$-means and Gaussian Mixture models, and see that Gaussian Mixture models can capture more relevant yellow parking lines pixels from the shadow see Figure 5, which is consistent with our expectations. However, Gaussian mixture was not able to solve the problem with shadow completely.  
 
 
 \subsection{Edge Detection}
@@ -129,7 +117,7 @@ to perform Hough transform using OpenCV, see \cite{opencvt}.
 
 Bounding boxes are obtained using firstly the function \verb+findCountours+ to obtain contours delimiting the detected edges (given by delimiting point), and secondly the function \verb+minAreaRect+ to obtain the smallest rectangle that encloses each contour (given by the corner point of the rectangle). This gives a number of bounding boxes enclosing each of the regions detected in the previous steps. 
 
-Note that those rectangles will include lines as well and other identified objects, which are not lines. To distinguish lines from non-lines objects, we classify them based on geometric properties of the bounding boxes using the function \verb+boundingRect+. In particular, we compute the maximum length and aspect ratio (the longest side over the shortest side) of the bounding box since lines will be long and thin (large aspect ration and maximum side). We then select the shapes with aspect ratio largest than 4. Alternatively, we can use clustering methods, such as hierarchical clusters or K-means, to classify long and thin rectangles based on their geometrical properties.
+Note that those rectangles will include lines as well and other identified objects, which are not lines. To distinguish lines from non-lines objects, we classify them based on geometric properties of the bounding boxes using the function \verb+boundingRect+. In particular, we compute the maximum length and aspect ratio (the longest side over the shortest side) of the bounding box since lines will be long and thin (large aspect ration and maximum side). We then select the shapes with aspect ratio largest than 4. Alternatively, we can use clustering methods, such as hierarchical clusters or $K$-means, to classify long and thin rectangles based on their geometrical properties.
 
 \section{Results}\label{results}
 In \S \ref{methods}, we introduced the method we used for automated 
@@ -184,7 +172,7 @@ $(c)$ Hough line detection result.}
 \label{lot1hsv}
 \end{figure}
 
-In this experiment, we apply color quantization with K-means clustering of 
+In this experiment, we apply color quantization with $K$-means clustering of 
 group $K=5$ in order to filter out the color other than yellow. 
 The corresponding result is shown in Figure 
 \ref{lot1k5}. In Figure $(a)$, we see that, in addition to the 
@@ -204,21 +192,21 @@ in the clustering to see whether it can improve the result.
 \includegraphics[width=3.8cm]{figures/Detected_Lot1k5.jpg}\\
 $(a)$ & $(b)$ & $(c)$
 \end{tabular}
-\caption{Result for K-means with $K=5$. 
+\caption{Result for $K$-means with $K=5$. 
 $(a)$ Color filtering result, 
 $(b)$ Canny edge detection result,
 $(c)$ Hough line detection result.}
 \label{lot1k5}
 \end{figure}
 
-Finally, we present the result when either $ K=  6$ for K-means or
+Finally, we present the result when either $ K=  6$ for $K$-means or
 $5$ components for Gaussian mixture model is applied for the color 
 quantization in Figure \ref{lot1result}. Here, for Gaussian mixture 
 model,  we apply the ``tied" co-variance. 
-Comparing the K-means with Gaussian mixture model, we see that, by applying 
+Comparing the $K$-means with Gaussian mixture model, we see that, by applying 
 either of the clustering method, yellow parking lines 
 can be detected accurately. However, we have used one less
-cluster group for Gaussian mixture model compared to K-means
+cluster group for Gaussian mixture model compared to $K$-means
 in this example. 
 After obtaining the edge detected image, we can then also apply 
 the shape classification method (described in \S \ref{lineandbox}) to label
@@ -240,7 +228,7 @@ $(a)$ & $(b)$ & $(c)$ & $(d)$
 \end{tabular}
 \caption{$(a)$ color filtering results, $(b)$ Canny edge detection results,
 $(c)$ Hough line detection results, $(d)$ box labelling results. 
-Results for K-means are shown on the top and for Gaussian mixture on the
+Results for $K$-means are shown on the top and for Gaussian mixture on the
 bottom.}
 \label{lot1result}
 \end{figure}
@@ -252,26 +240,26 @@ bottom.}
 In this work, we use unsupervised machine learning methods and image processing techniques to identify yellow and white lines in aerial images of roads and parking lots. The general pipeline consists of the following sequential steps:
 
 \begin{enumerate}
-    \item Color quantization. Use unsupervised machine learning (K-means or Gaussian mixture models) to classify colors into clusters. The clustering can be applied to a number of images concatenated together, in which case a larger spectrum of colors is considered and the classifier can be saved for future use.
-    {\color{red} \item Color filter. Pick yellow (white) pixels based on the color clusters. The output is a copy of the original image (or transformed color model) where all pixels not belonging to the cluster have been removed. This step assumes that all yellow (white) pixels have a similar hue.}
-    \item Smoothing filters. Apply a filter to eliminate isolated or faint pixels that remain after the color filter.
+    \item Color quantization. Use unsupervised machine learning ($K$-means or Gaussian mixture models) to classify colors into clusters. The clustering can be applied to a number of images concatenated together, in which case a larger spectrum of colors is considered and the classifier can be saved for future use.
+    \item Color filtering. Keep only yellow (white) pixels based on the color clusters. The output is a copy of the original image (or transformed color model) where all pixels not belonging to the cluster have been removed.  This step assumes that all yellow (white) pixels of interest are very similar. 
+    \item Image smoothing. Apply a filter to eliminate isolated or faint pixels that remain after the color filter.
     \item Edge detection. Apply Canny edge detection to identify all enclosed regions that remain after color and smooth filters. The output is a binary image delimiting all filtered pixels.
     \item Contours. Identify the contour enclosing each of the group of pixels that has been edge detected. The output is a list of contour points delimiting each group of filtered pixels.
     \item Bounding boxes. Determine the minimal rectangle that encloses the contour. The output is a list of four (corner) points for each group of filtered pixels.
-    \item Shape recognition. Use unsupervised machine learning (hierarchical clusters or K-means) or heuristic rules (aspect ratio larger than four) to classify and select those rectangles that are thin and long. The output is a subset of the bounding boxes.
-    \item Plot. Identify yellow (white) lines by plotting bounding boxes over the original image.
+    \item Shape recognition. Use unsupervised machine learning (hierarchical clusters or $K$-means) or heuristic rules (aspect ratio larger than four) to classify and select those rectangles that are thin and long. The output is a subset of the bounding boxes.
+    \item Labeling. Identify yellow (white) lines by plotting bounding boxes over the original image.
 \end{enumerate}
 
-We believe the pipeline above can be applied outside the data set that we considered. However, more experimentation would be required with images including curved or angled road lines, etc. {\color{red} From our experimentation with the available data set, we identified a number of issues that we couldn't address due to time constrains. These issues are explained in the rest of this section.}
+We believe the pipeline above can be applied outside the data set that we considered. However, more experiments would be required with images including curved or angled road lines, etc.  From our experiments with the available data set, we identified a number of issues that we couldn't address due to time constrains. These issues and potential solutions/improvements are explained in the rest of this section.
+
+
 
 \subsection{Future Work}
 
 \subsubsection{Shadow}
-% Figure for compare the K-means/ Gaussian mixture with shadow 
-% For K-means, we used $ k = 10$, 
-% minval = 100, maxval = 200 for canny 
 
-Shadow is the main obstacle in this project. For example, from Figure \ref{lot11result} $(b)$ we can see the K-means clustering with Hough line detector cannot find all the yellow lines in the shadow area. This is because K-means can only pick up one yellow color while there is an obvious color difference between the normal yellow color in the bright area and dark yellow color in the shaded area. This can be partially solved by Gaussian Mixture model as shown in Figure \ref{lot11result} $(c)$, in which dark yellow color in shaded area is recognized as the normal yellow color in the bright area with a certain probability. However, we can see some yellow lines in shaded area are still missing from line detection.
+
+Shadow is the main obstacle in this project. For example, from Figure \ref{lot11result} $(b)$ we can see the $K$-means clustering with Hough line detector cannot find all the yellow lines in the shadow area. This is because $K$-means can only pick up one yellow color while there is an obvious color difference between the normal yellow color in the bright area and dark yellow color in the shaded area. This can be partially solved by Gaussian Mixture model as shown in Figure \ref{lot11result} $(c)$, in which dark yellow color in shaded area is recognized as the normal yellow color in the bright area with a certain probability. However, we can see some yellow lines in shaded area are still missing from line detection.
 
 \begin{figure}[htp]
 \centering
@@ -281,16 +269,16 @@ Shadow is the main obstacle in this project. For example, from Figure \ref{lot11
 \includegraphics[width=3.8cm]{figures/detected_Lot11.jpg}\\
 $(a)$ & $(b)$ & $(c)$
 \end{tabular}
-\caption{$(a)$ resized original image, $(b)$ K-means result,
+\caption{$(a)$ resized original image, $(b)$ $K$-means result,
 $(c)$ Gaussian Mixture model result.}
 \label{lot11result}
 \end{figure}
 
 One possible way to address the shadow issue is to modify the part of the image inside the shadow area while keeping the part of the image outside of the shadow unchanged. We got two different types of modifications, to increase the brightness of the shadow area by a certain value, or to modify the RGB color values of the shadow area and make them closer to the ones in the bright area. Both methods start with 
-removing the texture of the image by mean shift filter. Then threshold the image and the shadow area can be picked up. Now change the color space of the shadow area from RGB to HSV so we can increase the brightness of the shaded area. (Or we can multiply the RGB color values of the shadow area to make the shadow area and the bright area have the same means of color values). Finally, we combine the images of the modified shaded area with the normal bright area to obtain the output. We can also use the mean shift filter again or inpainting tool to make the gap between the shadow area and bright area smoother. Figure \ref{lot11shadow} shows the result of brightening and color modification (the white spots inside shadow in panel $(c)$ come from small components removal after thresholding the original image, which is optional).
+removing the texture of the image by mean shift filter. Then threshold the image and the shadow area can be picked up. Now change the color space of the shadow area from RGB to HSV so we can increase the brightness of the shaded area. (Or we can multiply the RGB color values of the shadow area to make the shadow area and the bright area have the same means of color values). Finally, we combine the images of the modified shadow area with the normal bright area to obtain the output. We can also use the mean shift filter again or inpainting tool to make the gap between the shadow area and bright area smoother. Figure \ref{lot11shadow} shows the result of brightening and color modification (the white spots inside shadow in panel $(c)$ come from small components removal after thresholding the original image, which is optional).
 
 Another way to address with shadow parts is to apply the Homomorphic filter \cite{glasgio} to all images in the image process procedures, in order to improve the light exposure. This part is done before the color quantization. To be more specific, we first changed the color modes to HSV.
-After that, we applied the Homomorphic filter on the low energy frequency on the brightness $V$ channel, because the shadow part is related to the low energy frequency compared to the non-shadow parts. Then, we shifted the mean value of the $V$ channel of the isomorphic filter images back to the original images.   We can see some results in Figure \ref{homo_transformed}. 
+After that, we applied the Homomorphic filter on the low energy frequency on the brightness V channel, because the shadow part is related to the low energy frequency compared to the non-shadow parts. Then, we shifted the mean value of the V channel of the isomorphic filter images back to the original images.   We can see some results in Figure \ref{homo_transformed}. 
 
 Together with other tools, one of the possible procedures to detect all lines in image with shadow is
 \begin{enumerate}
@@ -304,7 +292,7 @@ where we can change the order of the first two steps to compare the performance.
 \begin{figure}[htp]
 \centering
 \begin{tabular}{ccc}
-\includegraphics[height=3.61cm, width=3.81cm]{figures/Resized_Lot11.jpg}&
+\includegraphics[height=3.6cm, width=3.9cm]{figures/Resized_Lot11.jpg}&
 \includegraphics[width=3.8cm]{figures/Brightened Shadow.png}&
 \includegraphics[width=3.8cm]{figures/Color Modified Shadow.png}\\
 $(a)$ & $(b)$ & $(c)$
@@ -326,17 +314,10 @@ $(a)$ & $(b)$ & $(c)$
 \end{figure}
 
 \subsubsection{Unwanted White Lines}
-% curbs and side lines are also detected but unwanted. 
 
-% kmeans with $k =10$, minval = 100, maxval = 200 for canny,
-% threshold = 20, minLineLength = 18, maxLineGap = 10 for Hough line
-
-% apply meanshift filtering with the spatial window radius = 20, the color window radius = 60
-
-When detecting white lines on roads, usually curbs are also detected at the same time. This creates problems if we want to distinguish white dash lines or marks in the middle of roads from curbs. As an example, Figure \ref{road3result} (b) shows curb affecting the detection of white dash lines if we only combine K-means clustering with Hough line detection.  Figure \ref{road3result} (c) shows if we apply one iteration of mean shift filter before K-means clustering, the influence of curbs becomes much smaller. 
+When detecting white lines on roads, usually curbs are also detected at the same time. This creates problems if we want to distinguish white dash lines or marks in the middle of roads from curbs. As an example, Figure \ref{road3result} (b) shows curb affecting the detection of white dash lines if we only combine $K$-means clustering with Hough line detection.  Figure \ref{road3result} (c) shows if we apply one iteration of mean shift filter before $K$-means clustering, the influence of curbs becomes much smaller. 
 It leaves us future work to do further investigation on how to properly apply 
-mean shift filter to only detect the white dash lines in the middle of the 
-road.
+mean shift filter to only detect the white dash lines in the middle of the road.
 
 \begin{figure}[htp]
 \centering
@@ -347,8 +328,8 @@ road.
 $(a)$ & $(b)$ & $(c)$
 \end{tabular}
 \caption{$(a)$ original image, 
-$(b)$ direct K-means result,
-$(c)$ mean shift filtering before K-means result.}
+$(b)$ direct $K$-means result,
+$(c)$ mean shift filtering before $K$-means result.}
 \label{road3result}
 \end{figure}
 
@@ -371,11 +352,9 @@ such as the number of groups in clustering, the minVal, and MaxVal threshold
 in Canny edge detection, and three parameters in Hough line detection. 
 Moreover, in the newly proposed shadow modification method shown as Figure 
 \ref{lot11shadow} $(b)$, we also need to manually increase the HSV brightness 
-value. {\color{red}One future work for us is to develop a machine learning parameter 
-selection tool to minimize human input.  }
+value. Future work includes using machine learning to automate optimal parameter selection.
 
 
-% In this project, many of the parameters in our codes are tuned manually. Thus automated parameter selection will be a great improvement of the project. In the example of Figure \ref{lot11shadow} shadow modification, the shadow part is modified by (b) increasing the HSV brightness value by a certain manually selected value (here is $100$), or (c) multiplying the RGB color values by the ratio (so it is automatically in this case) of bright area color values to shadow area color values.
 
 \section*{Acknowledgments}
 
